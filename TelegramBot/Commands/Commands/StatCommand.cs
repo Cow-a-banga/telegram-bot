@@ -22,15 +22,25 @@ namespace TelegramBotExperiments.Commands.Commands
         public override void Execute(Message message)
         {
             _statistics = _paymentService.GetStat();
-            var amount = _statistics.Sum(x => x.Amount);
-            var amountPerPesron = amount / _statistics.Count;
-            _statistics.ForEach(x => x.Amount = amountPerPesron - x.Amount);
+            if (_statistics.Count > 0)
+            {
+                var amount = _statistics.Sum(x => x.Amount);
+                var amountPerPesron = amount / _statistics.Count;
+                _statistics.ForEach(x => x.Amount = amountPerPesron - x.Amount);
+            }
         }
 
         public override async void SendAnswer(Message message, ITelegramBotClient botClient)
         {
-            var statStr = string.Join('\n', _statistics.Select(x => x.ToString()));
-            await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{statStr}");
+            if (_statistics.Count > 0)
+            {
+                var statStr = string.Join('\n', _statistics.Select(x => x.ToString()));
+                await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{statStr}");
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(message.Chat, $"Чек пуст");
+            }
         }
     }
 }
