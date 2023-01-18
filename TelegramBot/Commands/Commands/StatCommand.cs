@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Payment;
 using TelegramBotExperiments.Algorithms;
+using TelegramBotExperiments.Commands.Extensions;
 
 namespace TelegramBotExperiments.Commands.Commands
 {
@@ -39,22 +40,34 @@ namespace TelegramBotExperiments.Commands.Commands
             
             if (_statistics.CommonPayments.Count > 0)
             {
-                commonText = string.Join('\n', _statistics.CommonPayments.Select(x => x.ToString()));
+                commonText = _statistics.CommonPayments.JoinLines();
             }
 
             if (_statistics.PersonalPayments.Count > 0)
             {
-                personalText = string.Join('\n', _statistics.PersonalPayments.Select(x => x.ToString()));
+                personalText = _statistics.PersonalPayments.JoinLines();
             }
 
             if (_transfers.Count > 0)
             {
-                transferText = string.Join('\n', _transfers.Select(x => x.ToString()));
+                transferText = _transfers.JoinLines();
             }
             
             await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
-            if(transferText != null)
+            if (transferText != null)
+            {
                 await botClient.SendTextMessageAsync(message.Chat, $"Итого:\n{transferText}");
+
+                foreach (var group in _transfers.GroupBy(x => x.UserTo))
+                {
+                    if (!group.Key.Id.HasValue) 
+                        continue;
+                    
+                    var text = group.JoinLines();
+                    var chat = await botClient.GetChatAsync(group.Key.Id);
+                    await botClient.SendTextMessageAsync(chat, $"Итого:\n{text}");
+                }
+            }
         }
     }
 }

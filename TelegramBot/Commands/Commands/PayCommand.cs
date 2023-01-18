@@ -27,7 +27,8 @@ namespace TelegramBotExperiments.Commands.Commands
                 {
                     Firstname = message.From.FirstName,
                     Lastname = message.From.LastName,
-                    Username = message.From.Username
+                    Username = message.From.Username,
+                    Id = message.From.Id,
                 }
             };
 

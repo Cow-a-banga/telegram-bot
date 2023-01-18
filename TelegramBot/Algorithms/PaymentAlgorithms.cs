@@ -63,7 +63,6 @@ namespace TelegramBotExperiments.Algorithms
                             markedDebts[i] = true;
                             break;
                         }
-                            
                     }
                 }
             }
