@@ -2,12 +2,13 @@
 {
     public class Payment
     {
-        public decimal Amount { get; set; }
-        public string Username { get; set; }
+        public decimal? Amount { get; set; }
+        public User UserFrom { get; set; } = new User();
+        public User? UserTo { get; set; }
 
         public override string ToString()
         {
-            return $"{Username}: {Amount}";
+            return UserTo == null ? $"{UserFrom}: {Amount:C}" : $"{UserTo} должен ({UserFrom}) {Amount:C}";
         }
     }
 }

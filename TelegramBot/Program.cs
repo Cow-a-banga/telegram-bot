@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,8 +8,10 @@ using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Exceptions;
 using TelegramBot.Payment;
+using TelegramBotExperiments.Algorithms;
 using TelegramBotExperiments.Commands;
 using TelegramBotExperiments.Commands.Commands;
+using User = TelegramBot.Payment.User;
 
 namespace TelegramBotExperiments
 {
@@ -17,7 +20,6 @@ namespace TelegramBotExperiments
     {
         static ITelegramBotClient bot = new TelegramBotClient("5907541674:AAFjPqD9-2DEHbr90ergnnMZLH7hbtj5R-A");
         static CommandService _commandService = new CommandService();
-        static PaymentService _paymentService = new PaymentService();
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             try
@@ -50,10 +52,11 @@ namespace TelegramBotExperiments
         {
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             
-            _commandService.Register(new ClearCommand(_paymentService));
-            _commandService.Register(new UndoCommand(_paymentService));
-            _commandService.Register(new PayCommand(_paymentService));
-            _commandService.Register(new StatCommand(_paymentService));
+            var paymentService = new PaymentService();
+            _commandService.Register(new ClearCommand(paymentService));
+            _commandService.Register(new UndoCommand(paymentService));
+            _commandService.Register(new PayCommand(paymentService));
+            _commandService.Register(new StatCommand(paymentService));
             _commandService.Register(new HelpCommand());
 
             var cts = new CancellationTokenSource();
