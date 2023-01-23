@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DataBase;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
@@ -11,6 +13,7 @@ using TelegramBot.Payment;
 using TelegramBotExperiments.Algorithms;
 using TelegramBotExperiments.Commands;
 using TelegramBotExperiments.Commands.Commands;
+using TelegramBotExperiments.Commands.Extensions;
 using User = TelegramBot.Payment.User;
 
 namespace TelegramBotExperiments
@@ -18,12 +21,16 @@ namespace TelegramBotExperiments
 
     class Program
     {
-        static ITelegramBotClient bot = new TelegramBotClient("5907541674:AAFjPqD9-2DEHbr90ergnnMZLH7hbtj5R-A");
-        static CommandService _commandService = new CommandService();
+        private static ITelegramBotClient bot = new TelegramBotClient("5907541674:AAFjPqD9-2DEHbr90ergnnMZLH7hbtj5R-A");
+        private static DatabaseContext _context = new DatabaseContext();
+        private static CommandService _commandService = new CommandService();
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             try
             {
+                var command = new AddUserIfNotExistCommand(_context);
+                command.Execute(update.Message.From.ToDto());
+                
                 if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
                 {
                     var message = update.Message;
@@ -50,6 +57,7 @@ namespace TelegramBotExperiments
 
         static void Main(string[] args)
         {
+            _context.Database.Migrate();
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             
             var paymentService = new PaymentService();
