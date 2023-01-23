@@ -23,7 +23,8 @@ namespace TelegramBotExperiments
 
     class Program
     {
-        private static ITelegramBotClient bot = new TelegramBotClient("5907541674:AAFjPqD9-2DEHbr90ergnnMZLH7hbtj5R-A");
+        private static string token = Environment.GetEnvironmentVariable("TGBOT_TOKEN");
+        private static ITelegramBotClient bot = new TelegramBotClient(token);
         private static DatabaseContext _context = new DatabaseContext();
         private static CommandService _commandService = new CommandService();
         private static ILogger _logger = new ConsoleLogger();
