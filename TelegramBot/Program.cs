@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common;
 using DataBase;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
@@ -25,12 +26,13 @@ namespace TelegramBotExperiments
         private static ITelegramBotClient bot = new TelegramBotClient("5907541674:AAFjPqD9-2DEHbr90ergnnMZLH7hbtj5R-A");
         private static DatabaseContext _context = new DatabaseContext();
         private static CommandService _commandService = new CommandService();
+        private static ILogger _logger = new ConsoleLogger();
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             try
             {
                 var command = new AddUserIfNotExistCommand(_context);
-                command.Execute(update.Message.From.ToDto());
+                await command.ExecuteAsync(update.Message.From.ToDto());
                 
                 if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
                 {
@@ -38,6 +40,8 @@ namespace TelegramBotExperiments
 
                     if (message?.Text == null)
                         return;
+                    
+                    _logger.Log($"Запрос {update.Message.Text} от {update.Message.From.FirstName} получен");
 
                     _commandService.Execute(message, botClient);
                 }
