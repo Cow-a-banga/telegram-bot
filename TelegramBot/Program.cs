@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,6 +58,10 @@ namespace TelegramBotExperiments
 
         static void Main(string[] args)
         {
+            var culture = new CultureInfo("ru-RU");
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+            
             _context.Database.Migrate();
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             

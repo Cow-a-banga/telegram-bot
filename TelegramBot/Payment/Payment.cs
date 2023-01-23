@@ -11,7 +11,7 @@ namespace TelegramBot.Payment
 
         public override string ToString()
         {
-            return UserTo == null ? $"{UserFrom}: {Amount.Value.ToString("C2", CultureInfo.CurrentCulture)}" : $"{UserTo} должен ({UserFrom}) {Amount:C}";
+            return UserTo == null ? $"{UserFrom}: {Amount:C2}" : $"{UserTo} должен ({UserFrom}) {Amount:C2}";
         }
 
         public object Clone()
