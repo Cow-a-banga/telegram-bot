@@ -11,12 +11,13 @@ namespace TelegramBotExperiments.Algorithms
         
         public static List<Payment> GenerateTransfers(PaymentStatistics statistics)
         {
-            var transfers = GenerateCommonTransfers(statistics.CommonPayments);
-            transfers.AddRange(statistics.PersonalPayments);
+            var stat = statistics.Clone() as PaymentStatistics;
+            var transfers = GenerateCommonTransfers(stat.CommonPayments);
+            transfers.AddRange(stat.PersonalPayments);
             return transfers
                 .GroupBy(x => (x.UserFrom, x.UserTo))
                 .Select(g => new Payment
-                    {Amount = g.Sum(x => x.Amount), UserFrom = g.Key.UserFrom, UserTo = g.Key.UserTo})
+                    {Amount = g.Sum(x => x.Amount), UserFrom = g.Key.UserTo, UserTo = g.Key.UserFrom})
                 .ToList();
         }
         
