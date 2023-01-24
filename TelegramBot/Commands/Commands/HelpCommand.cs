@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Schema;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,7 +13,7 @@ namespace TelegramBotExperiments.Commands.Commands
             Description = "/h, /help - список команд";
             Names = new[] {"/help", "/h"};
         }
-        public override void Execute(Message message) {}
+        public override Task ExecuteAsync(Message message) {return  Task.CompletedTask;}
 
         public override async void SendAnswer(Message message, ITelegramBotClient botClient)
         {

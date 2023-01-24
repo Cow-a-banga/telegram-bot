@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
@@ -10,13 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Exceptions;
+using TelegramBot.Extensions;
 using TelegramBot.Payment;
-using TelegramBotExperiments.Algorithms;
 using TelegramBotExperiments.Commands;
 using TelegramBotExperiments.Commands.Commands;
-using TelegramBotExperiments.Commands.Extensions;
-using User = TelegramBot.Payment.User;
 
 namespace TelegramBotExperiments
 {
@@ -44,7 +39,7 @@ namespace TelegramBotExperiments
                     
                     _logger.Log($"Запрос {update.Message.Text} от {update.Message.From.FirstName} получен");
 
-                    _commandService.Execute(message, botClient);
+                    await _commandService.ExecuteAsync(message, botClient);
                 }
             }
             catch (Exception ex)
@@ -73,8 +68,8 @@ namespace TelegramBotExperiments
             var paymentService = new PaymentService();
             _commandService.Register(new ClearCommand(paymentService));
             _commandService.Register(new UndoCommand(paymentService));
-            _commandService.Register(new PayCommand(paymentService));
-            _commandService.Register(new StatCommand(paymentService));
+            _commandService.Register(new PayCommand(paymentService, _context));
+            _commandService.Register(new StatCommand(paymentService, _context));
             _commandService.Register(new HelpCommand());
 
             var cts = new CancellationTokenSource();

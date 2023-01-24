@@ -2,11 +2,11 @@
 using System.Linq;
 using TelegramBot.Payment;
 
-namespace TelegramBotExperiments.Commands.Extensions
+namespace TelegramBot.Extensions
 {
     public static class PaymentsExtensions
     {
-        public static string JoinLines(this IEnumerable<Payment> payments)
+        public static string JoinLines(this IEnumerable<PaymentInputDto> payments)
         {
             return string.Join('\n', payments.Select(x => x.ToString()));
         }

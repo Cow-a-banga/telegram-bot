@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBotExperiments.Commands.Extensions;
+using TelegramBot.Extensions;
 
 namespace TelegramBotExperiments.Commands
 {
@@ -9,7 +10,7 @@ namespace TelegramBotExperiments.Commands
     {
         public string[] Names { get; protected set; }
         public string Description { get; protected set; }
-        public abstract void Execute(Message message);
+        public abstract Task ExecuteAsync(Message message);
         public abstract void SendAnswer(Message message, ITelegramBotClient botClient);
 
         protected string[] GetParams(string text)

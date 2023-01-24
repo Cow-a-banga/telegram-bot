@@ -1,7 +1,7 @@
 ﻿using DataBase.Models;
 using Telegram.Bot.Types;
 
-namespace TelegramBotExperiments.Commands.Extensions
+namespace TelegramBot.Extensions
 {
     public static class UserExtensions
     {

@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Threading.Tasks;
+using DataBase;
+using DataBase.Commands;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Payment;
-using User = TelegramBot.Payment.User;
 
 namespace TelegramBotExperiments.Commands.Commands
 {
@@ -10,26 +12,22 @@ namespace TelegramBotExperiments.Commands.Commands
     {
         private PaymentService _paymentService;
         private Payment _payment;
+        private DatabaseContext _db;
 
-        public PayCommand(PaymentService paymentService)
+        public PayCommand(PaymentService paymentService, DatabaseContext db)
         {
             _paymentService = paymentService;
+            _db = db;
             Description = "/p, /pay (сумма) [@username] - добавляет платёж человека в чек (можно закинуть не в общак, а кокретному человеку)";
             Names = new[] {"/pay", "/p"};
         }
 
-        public override void Execute(Message message)
+        public override async Task ExecuteAsync(Message message)
         {
             var parameters = GetParams(message.Text);
             _payment = new Payment
             {
-                UserFrom =
-                {
-                    Firstname = message.From.FirstName,
-                    Lastname = message.From.LastName,
-                    Username = message.From.Username,
-                    Id = message.From.Id,
-                }
+                UserFromId = message.From.Id,
             };
 
 
@@ -41,9 +39,11 @@ namespace TelegramBotExperiments.Commands.Commands
                     continue;
                 }
 
-                if (parameter[0] == '@' && _payment.UserTo == null)
+                if (parameter[0] == '@' && _payment.UserToId == null)
                 {
-                    _payment.UserTo = new User {Username = parameter[1..]};
+                    var command = new FindUserByUsernameCommand(_db);
+                    var user = await command.ExecuteAsync(parameter[1..]);
+                    _payment.UserToId = user.Id;
                     continue;
                 }
             }

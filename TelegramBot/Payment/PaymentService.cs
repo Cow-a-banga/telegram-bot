@@ -29,9 +29,9 @@ namespace TelegramBot.Payment
         private List<Payment> GetCommonPayments()
         {
             var common = _payments
-                .Where(x => x.UserTo == null)
-                .GroupBy(x => x.UserFrom)
-                .Select((g) => new Payment {Amount = g.Sum(x => x.Amount), UserFrom = g.Key})
+                .Where(x => x.UserToId == null)
+                .GroupBy(x => x.UserFromId)
+                .Select((g) => new Payment {Amount = g.Sum(x => x.Amount), UserFromId = g.Key})
                 .ToList();
             
             if (common.Count > 0)
@@ -47,12 +47,12 @@ namespace TelegramBot.Payment
         private List<Payment> GetPersonalPayments()
         {
             return _payments
-                .Where(x => x.UserTo != null)
-                .GroupBy(x => new {x.UserFrom, x.UserTo})
+                .Where(x => x.UserToId != null)
+                .GroupBy(x => new {x.UserFromId, x.UserToId})
                 .Select(g =>
                     new Payment
                     {
-                        Amount = g.Sum(x => x.Amount), UserFrom = g.Key.UserFrom, UserTo = g.Key.UserTo
+                        Amount = g.Sum(x => x.Amount), UserFromId = g.Key.UserFromId, UserToId = g.Key.UserToId
                     })
                 .ToList();
         }

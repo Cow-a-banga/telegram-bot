@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Payment;
 
@@ -16,9 +17,10 @@ namespace TelegramBotExperiments.Commands.Commands
         }
         
 
-        public override void Execute(Message message)
+        public override Task ExecuteAsync(Message message)
         {
             _paymentService.Clear();
+            return  Task.CompletedTask;
         }
 
         public override async void SendAnswer(Message message, ITelegramBotClient botClient)

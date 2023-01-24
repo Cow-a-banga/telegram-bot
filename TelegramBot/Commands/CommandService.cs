@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBotExperiments.Commands.Extensions;
+using TelegramBot.Extensions;
 
 namespace TelegramBotExperiments.Commands
 {
@@ -12,16 +14,17 @@ namespace TelegramBotExperiments.Commands
 
         public static IEnumerable<Command> Commands => _commands;
 
-        public void Execute(Message message, ITelegramBotClient botClient)
+        public async Task ExecuteAsync(Message message, ITelegramBotClient botClient)
         {
             var prefix = message.Text.SplitCommand().FirstOrDefault();
             var prefixParts = prefix.Split('@').ToArray();
             prefix = prefixParts.Length == 2 && prefixParts[1] == "zadrotovpermibot" ? prefixParts[0] : prefix;
+            prefix = prefix.ToLower();
             foreach (var command in _commands)
             {
                 if (command.Names.Contains(prefix))
                 {
-                    command.Execute(message);
+                    await command.ExecuteAsync(message);
                     command.SendAnswer(message, botClient);
                     return;
                 }

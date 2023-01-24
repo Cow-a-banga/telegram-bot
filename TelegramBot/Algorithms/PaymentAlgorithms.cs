@@ -15,9 +15,9 @@ namespace TelegramBotExperiments.Algorithms
             var transfers = GenerateCommonTransfers(stat.CommonPayments);
             transfers.AddRange(stat.PersonalPayments);
             return transfers
-                .GroupBy(x => (x.UserFrom, x.UserTo))
+                .GroupBy(x => (x.UserFromId, x.UserToId))
                 .Select(g => new Payment
-                    {Amount = g.Sum(x => x.Amount), UserFrom = g.Key.UserTo, UserTo = g.Key.UserFrom})
+                    {Amount = g.Sum(x => x.Amount), UserFromId = g.Key.UserToId.Value, UserToId = g.Key.UserFromId})
                 .ToList();
         }
         
@@ -37,7 +37,7 @@ namespace TelegramBotExperiments.Algorithms
                     if (!markedAdditions[j] && Math.Abs((debts[i].Amount + additions[i].Amount).Value) < Alpha)
                     {
                         markedAdditions[j] = markedDebts[i] = true;
-                        result.Add(new Payment{UserFrom = debts[i].UserFrom, UserTo = additions[j].UserFrom, Amount = debts[i].Amount});
+                        result.Add(new Payment{UserFromId = debts[i].UserFromId, UserToId = additions[j].UserFromId, Amount = debts[i].Amount});
                     }
                 }
             }
@@ -54,7 +54,7 @@ namespace TelegramBotExperiments.Algorithms
                         additions[j].Amount += transferAmount;
                         debts[i].Amount -= transferAmount;
                         
-                        result.Add(new Payment{UserFrom = debts[i].UserFrom, UserTo = additions[j].UserFrom, Amount = transferAmount});
+                        result.Add(new Payment{UserFromId = debts[i].UserFromId, UserToId = additions[j].UserFromId, Amount = transferAmount});
 
                         if(Math.Abs(additions[j].Amount.Value) < Alpha)
                             markedAdditions[j] = true;
