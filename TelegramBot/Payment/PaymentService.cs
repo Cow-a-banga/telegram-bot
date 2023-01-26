@@ -7,7 +7,12 @@ namespace TelegramBot.Payment
     {
         private readonly LinkedList<Payment> _payments = new();
 
-        public void AddPayment(Payment p) => _payments.AddLast(p);
+        public void AddPayment(Payment p)
+        {
+            if (!_payments.Any(x => x.UserFromId == p.UserFromId && x.UserToId == null))
+                _payments.AddLast(new Payment {Amount = 0, UserFromId = p.UserFromId});
+            _payments.AddLast(p);
+        }
 
         public void Undo()
         {

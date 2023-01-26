@@ -27,10 +27,11 @@ namespace TelegramBotExperiments.Commands.Commands
         }
         
 
-        public override async Task ExecuteAsync(Message message)
+        public override Task ExecuteAsync(Message message)
         {
             _statistics = _paymentService.GetStat();
             _transfers = PaymentAlgorithms.GenerateTransfers(_statistics);
+            return Task.CompletedTask;
         }
 
         public override async void SendAnswer(Message message, ITelegramBotClient botClient)
@@ -50,7 +51,7 @@ namespace TelegramBotExperiments.Commands.Commands
                 return;
             }
 
-            string commonText = null, personalText = null, transferText = null;
+            string commonText = null, personalText = null;
             
             if (_statistics.CommonPayments.Count > 0)
             {
@@ -66,23 +67,11 @@ namespace TelegramBotExperiments.Commands.Commands
                     .JoinLines();
             }
 
+            await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
             if (_transfers.Count > 0)
             {
-                transferText = _transfers
-                    .Select(x => x.ToDto<PaymentOutputDto>(users))
-                    .JoinLines();
-            }
-            
-            await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
-            if (transferText != null)
-            {
-                await botClient.SendTextMessageAsync(message.Chat, $"Итого:\n{transferText}");
-
-                foreach (var group in _transfers.GroupBy(x => x.UserToId))
+                foreach (var group in _transfers.GroupBy(x => x.UserFromId))
                 {
-                    if (!group.Key.HasValue) 
-                        continue;
-                    
                     var text = group
                         .Select(x => x.ToDto<PaymentOutputDto>(users))
                         .JoinLines();

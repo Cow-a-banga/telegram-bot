@@ -5,7 +5,7 @@ using TelegramBot.Payment;
 
 namespace TelegramBotExperiments.Algorithms
 {
-    public class PaymentAlgorithms
+    public static class PaymentAlgorithms
     {
         private const decimal Alpha = 0.0001m;
         
@@ -13,12 +13,35 @@ namespace TelegramBotExperiments.Algorithms
         {
             var stat = statistics.Clone() as PaymentStatistics;
             var transfers = GenerateCommonTransfers(stat.CommonPayments);
+            stat.PersonalPayments.ForEach(x => (x.UserFromId, x.UserToId) = (x.UserToId.Value, x.UserFromId));
             transfers.AddRange(stat.PersonalPayments);
             return transfers
                 .GroupBy(x => (x.UserFromId, x.UserToId))
                 .Select(g => new Payment
-                    {Amount = g.Sum(x => x.Amount), UserFromId = g.Key.UserToId.Value, UserToId = g.Key.UserFromId})
+                    {Amount = g.Sum(x => x.Amount), UserFromId = g.Key.UserFromId, UserToId = g.Key.UserToId})
+                .FilterUselessPayments()
                 .ToList();
+        }
+
+        private static IEnumerable<Payment> FilterUselessPayments(this IEnumerable<Payment> payments)
+        {
+            return payments
+                .GroupBy(x => new
+                {
+                    LessId = Math.Min(x.UserFromId, x.UserToId.Value),
+                    LargerId = Math.Max(x.UserFromId, x.UserToId.Value)
+                })
+                .Select(x =>
+                {
+                    var lst = x.ToList();
+                    if (lst.Count == 1)
+                        return lst[0];
+
+                    var amount = Math.Abs(lst[0].Amount.Value - lst[1].Amount.Value);
+                    Payment result = lst[0].Amount.Value > lst[1].Amount.Value ? lst[0] : lst[1];
+                    result.Amount = amount;
+                    return result;
+                });
         }
         
         private static List<Payment> GenerateCommonTransfers(List<Payment> payments)
@@ -34,7 +57,7 @@ namespace TelegramBotExperiments.Algorithms
             {
                 for (var j = 0; j < additions.Count; j++)
                 {
-                    if (!markedAdditions[j] && Math.Abs((debts[i].Amount + additions[i].Amount).Value) < Alpha)
+                    if (!markedAdditions[j] && Math.Abs((debts[i].Amount + additions[j].Amount).Value) < Alpha)
                     {
                         markedAdditions[j] = markedDebts[i] = true;
                         result.Add(new Payment{UserFromId = debts[i].UserFromId, UserToId = additions[j].UserFromId, Amount = debts[i].Amount});
