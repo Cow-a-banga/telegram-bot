@@ -1,6 +1,6 @@
 ﻿using DataBase.Models;
 
-namespace TelegramBot.Payment
+namespace TelegramBot.Services.Payment
 {
     public class PaymentInputDto
     {

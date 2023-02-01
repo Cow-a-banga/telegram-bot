@@ -4,14 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using DataBase;
+using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
+using TelegramBot.Commands.Commands.Payment;
 using TelegramBot.Extensions;
-using TelegramBot.Payment;
 using TelegramBotExperiments.Commands;
-using TelegramBotExperiments.Commands.Commands;
 
 namespace TelegramBotExperiments
 {
@@ -55,7 +55,6 @@ namespace TelegramBotExperiments
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(exception));
         }
 
-
         static void Main(string[] args)
         {
             var culture = new CultureInfo("ru-RU");
@@ -65,11 +64,11 @@ namespace TelegramBotExperiments
             _context.Database.Migrate();
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             
-            var paymentService = new PaymentService();
-            _commandService.Register(new ClearCommand(paymentService));
-            _commandService.Register(new UndoCommand(paymentService));
-            _commandService.Register(new PayCommand(paymentService, _context));
-            _commandService.Register(new StatCommand(paymentService, _context));
+            _commandService.Register(new ClearCommand(_context));
+            _commandService.Register(new UndoCommand(_context));
+            _commandService.Register(new PayCommand(_context));
+            _commandService.Register(new StatCommand(_context));
+            _commandService.Register(new ArchiveCommand(_context));
             _commandService.Register(new HelpCommand());
 
             var cts = new CancellationTokenSource();

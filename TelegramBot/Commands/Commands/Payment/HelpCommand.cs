@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using TelegramBotExperiments.Commands;
 
-namespace TelegramBotExperiments.Commands.Commands
+namespace TelegramBot.Commands.Commands.Payment
 {
     public class HelpCommand:Command
     {
@@ -15,7 +15,7 @@ namespace TelegramBotExperiments.Commands.Commands
         }
         public override Task ExecuteAsync(Message message) {return  Task.CompletedTask;}
 
-        public override async void SendAnswer(Message message, ITelegramBotClient botClient)
+        public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
             var text = string.Join('\n', CommandService.Commands.Select(x => x.Description).OrderBy(x => x));
             await botClient.SendTextMessageAsync(message.Chat, $"{text}");

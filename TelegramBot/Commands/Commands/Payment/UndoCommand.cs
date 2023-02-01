@@ -1,29 +1,39 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using DataBase;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBot.Payment;
 
-namespace TelegramBotExperiments.Commands.Commands
+namespace TelegramBot.Commands.Commands.Payment
 {
     public class UndoCommand:Command
     {
-        private PaymentService _paymentService;
+        private DatabaseContext _db;
 
-        public UndoCommand(PaymentService paymentService)
+        public UndoCommand(DatabaseContext db)
         {
-            _paymentService = paymentService;
+            _db = db;
             Description = "/u, /undo - удаляет последний платёж";
             Names = new[] {"/undo", "/u"};
         }
         
 
-        public override Task ExecuteAsync(Message message)
+        public override async Task ExecuteAsync(Message message)
         {
-            _paymentService.Undo();
-            return  Task.CompletedTask;
+            var payment = await _db.Payments
+                .Where(x => x.UserFromId == message.From.Id)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
+
+            if (payment != null)
+            {
+                _db.Payments.Remove(payment);
+                await _db.SaveChangesAsync();
+            }
         }
 
-        public override async void SendAnswer(Message message, ITelegramBotClient botClient)
+        public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
             await botClient.SendTextMessageAsync(message.Chat, "Сумма отменена");
         }    

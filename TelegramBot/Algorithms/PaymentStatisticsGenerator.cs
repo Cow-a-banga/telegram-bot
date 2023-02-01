@@ -1,44 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DataBase.Models;
+using TelegramBot.Services.Payment;
 
-namespace TelegramBot.Payment
+namespace TelegramBotExperiments.Algorithms
 {
-    public class PaymentService
+    public class PaymentStatisticsGenerator
     {
-        private readonly LinkedList<Payment> _payments = new();
-
-        public void AddPayment(Payment p)
-        {
-            if (!_payments.Any(x => x.UserFromId == p.UserFromId && x.UserToId == null))
-                _payments.AddLast(new Payment {Amount = 0, UserFromId = p.UserFromId});
-            _payments.AddLast(p);
-        }
-
-        public void Undo()
-        {
-            if(_payments.Count > 0)
-                _payments.RemoveLast();
-        }
-
-        public void Clear() => _payments.Clear();
-
-        public PaymentStatistics GetStat()
+        public PaymentStatistics GetStatistics(List<PaymentDto> payments)
         {
             return new()
             {
-                CommonPayments = GetCommonPayments(),
-                PersonalPayments = GetPersonalPayments(),
+                CommonPayments = GetCommonPayments(payments),
+                PersonalPayments = GetPersonalPayments(payments),
             };
         }
 
-        private List<Payment> GetCommonPayments()
+        private List<Payment> GetCommonPayments(List<PaymentDto> payments)
         {
-            var common = _payments
+            var common = payments
                 .Where(x => x.UserToId == null)
                 .GroupBy(x => x.UserFromId)
                 .Select((g) => new Payment {Amount = g.Sum(x => x.Amount), UserFromId = g.Key})
                 .ToList();
-            
+
             if (common.Count > 0)
             {
                 var amount = common.Sum(x => x.Amount);
@@ -48,10 +33,10 @@ namespace TelegramBot.Payment
 
             return common;
         }
-        
-        private List<Payment> GetPersonalPayments()
+
+        private List<Payment> GetPersonalPayments(List<PaymentDto> payments)
         {
-            return _payments
+            return payments
                 .Where(x => x.UserToId != null)
                 .GroupBy(x => new {x.UserFromId, x.UserToId})
                 .Select(g =>

@@ -2,13 +2,32 @@
 using System.Collections.Generic;
 using DataBase.Models;
 
-namespace TelegramBot.Payment
+namespace TelegramBot.Services.Payment
 {
     public class Payment: ICloneable
     {
         public decimal? Amount { get; set; }
         public long UserFromId { get; set; }
         public long? UserToId { get; set; }
+
+        public Payment() {}
+
+        public Payment(PaymentDto dto)
+        {
+            Amount = dto.Amount;
+            UserFromId = dto.UserFromId;
+            UserToId = dto.UserToId;
+        }
+
+        public PaymentDto ToDto()
+        {
+            return new PaymentDto
+            {
+                Amount = Amount.Value,
+                UserFromId = UserFromId,
+                UserToId = UserToId,
+            };
+        }
 
         public object Clone()
         {

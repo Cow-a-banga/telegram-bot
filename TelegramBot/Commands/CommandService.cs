@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using TelegramBot.Commands;
 using TelegramBot.Extensions;
 
 namespace TelegramBotExperiments.Commands

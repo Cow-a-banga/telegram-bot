@@ -1,12 +1,12 @@
 ﻿using DataBase.Models;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace DataBase
 {
     public class DatabaseContext: DbContext
     {
         public DbSet<UserDto> Users { get; set; }
+        public DbSet<PaymentDto> Payments { get; set; }
         
         public DatabaseContext()
         {

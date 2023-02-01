@@ -1,22 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DataBase;
 using DataBase.Commands;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using TelegramBot.Payment;
 
-namespace TelegramBotExperiments.Commands.Commands
+namespace TelegramBot.Commands.Commands.Payment
 {
     public class PayCommand :  Command
     {
-        private PaymentService _paymentService;
-        private Payment _payment;
+        private Services.Payment.Payment _payment;
         private DatabaseContext _db;
 
-        public PayCommand(PaymentService paymentService, DatabaseContext db)
+        public PayCommand(DatabaseContext db)
         {
-            _paymentService = paymentService;
             _db = db;
             Description = "/p, /pay (сумма) [@username] - добавляет платёж человека в чек (можно закинуть не в общак, а кокретному человеку)";
             Names = new[] {"/pay", "/p"};
@@ -25,7 +21,7 @@ namespace TelegramBotExperiments.Commands.Commands
         public override async Task ExecuteAsync(Message message)
         {
             var parameters = GetParams(message.Text);
-            _payment = new Payment
+            _payment = new Services.Payment.Payment
             {
                 UserFromId = message.From.Id,
             };
@@ -47,14 +43,15 @@ namespace TelegramBotExperiments.Commands.Commands
                     continue;
                 }
             }
-            
-            
-            
-            if(_payment.Amount.HasValue)
-                _paymentService.AddPayment(_payment);
+
+            if (_payment.Amount.HasValue)
+            {
+                var command = new AddPaymentCommand(_db);
+                await command.ExecuteAsync(_payment.ToDto());
+            }
         }
 
-        public override async void SendAnswer(Message message, ITelegramBotClient botClient)
+        public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
             if(_payment.Amount.HasValue)
                 await botClient.SendTextMessageAsync(message.Chat, "Сумма добавлена");

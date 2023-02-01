@@ -6,35 +6,34 @@ using DataBase.Commands;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Extensions;
-using TelegramBot.Payment;
+using TelegramBot.Services.Payment;
 using TelegramBotExperiments.Algorithms;
 
-namespace TelegramBotExperiments.Commands.Commands
+namespace TelegramBot.Commands.Commands.Payment
 {
     public class StatCommand:Command
     {
-        private PaymentService _paymentService;
         private PaymentStatistics _statistics;
-        private List<Payment> _transfers;
+        private List<Services.Payment.Payment> _transfers;
         private DatabaseContext _db;
 
-        public StatCommand(PaymentService paymentService, DatabaseContext db)
+        public StatCommand(DatabaseContext db)
         {
-            _paymentService = paymentService;
             _db = db;
             Description = "/s, /stat - показывает кто сколько должен отдать или получить";
             Names = new[] {"/stat", "/s"};
         }
         
-
-        public override Task ExecuteAsync(Message message)
+        public override async Task ExecuteAsync(Message message)
         {
-            _statistics = _paymentService.GetStat();
-            _transfers = PaymentAlgorithms.GenerateTransfers(_statistics);
-            return Task.CompletedTask;
+            var command = new GetCurrentPaymentsCommand(_db);
+            var payments = await command.ExecuteAsync();
+            var generator = new PaymentStatisticsGenerator();
+            _statistics = generator.GetStatistics(payments);
+            _transfers = TransferGenerator.GenerateTransfers(_statistics);
         }
 
-        public override async void SendAnswer(Message message, ITelegramBotClient botClient)
+        public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
             var usersId =
                 _statistics.CommonPayments.Select(x => x.UserFromId)
@@ -51,7 +50,7 @@ namespace TelegramBotExperiments.Commands.Commands
                 return;
             }
 
-            string commonText = null, personalText = null;
+            string commonText = null, personalText = null, transferText = null;
             
             if (_statistics.CommonPayments.Count > 0)
             {
@@ -66,8 +65,16 @@ namespace TelegramBotExperiments.Commands.Commands
                     .Select(x => x.ToDto<PaymentInputDto>(users))
                     .JoinLines();
             }
+            
+            if (_transfers.Count > 0)
+            {
+                transferText = _transfers
+                    .Select(x => x.ToDto<PaymentOutputDto>(users))
+                    .JoinLines();
+            }
 
             await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
+            await botClient.SendTextMessageAsync(message.Chat, $"Трансферы:\n{transferText}");
             if (_transfers.Count > 0)
             {
                 foreach (var group in _transfers.GroupBy(x => x.UserFromId))

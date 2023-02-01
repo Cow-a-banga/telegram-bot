@@ -4,14 +4,14 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Extensions;
 
-namespace TelegramBotExperiments.Commands
+namespace TelegramBot.Commands
 {
     public abstract class Command
     {
         public string[] Names { get; protected set; }
         public string Description { get; protected set; }
         public abstract Task ExecuteAsync(Message message);
-        public abstract void SendAnswer(Message message, ITelegramBotClient botClient);
+        public abstract Task SendAnswer(Message message, ITelegramBotClient botClient);
 
         protected string[] GetParams(string text)
         {

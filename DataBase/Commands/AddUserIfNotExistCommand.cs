@@ -6,7 +6,7 @@ namespace DataBase
 {
     public class AddUserIfNotExistCommand
     {
-        private DatabaseContext _db { get; set; }
+        private DatabaseContext _db;
         private ILogger _logger = new ConsoleLogger();
         
         public AddUserIfNotExistCommand(DatabaseContext db)

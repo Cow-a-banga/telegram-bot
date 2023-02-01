@@ -9,7 +9,7 @@ namespace DataBase.Commands
 {
     public class FindUsersByIdCommand
     {
-        private DatabaseContext _db { get; set; }
+        private DatabaseContext _db;
         private ILogger _logger = new ConsoleLogger();
 
         public FindUsersByIdCommand(DatabaseContext db)
