@@ -89,6 +89,7 @@ namespace TelegramBot.Commands.Commands.Payment
                     _logger.Log(group.Key.ToString());
                     await botClient.SendTextMessageAsync(group.Key, $"Итого:\n{text}");
                 }
+                _logger.Log("Трансферы закончены");
             }
         }
     }
