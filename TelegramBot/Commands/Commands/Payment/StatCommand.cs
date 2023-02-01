@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Common;
 using DataBase;
@@ -80,14 +83,20 @@ namespace TelegramBot.Commands.Commands.Payment
             _logger.Log(Newtonsoft.Json.JsonConvert.SerializeObject(_transfers));
             if (_transfers.Count > 0)
             {
-                foreach (var group in _transfers.GroupBy(x => x.UserFromId))
+                foreach (var group in _transfers.Where(x => x.UserFromId == 953181999).GroupBy(x => x.UserFromId))
                 {
-                    var text = group
+                    var chatId = group.Key;
+                    var text = "Итого:\n" + group
                         .Select(x => x.ToDto<PaymentOutputDto>(users))
                         .JoinLines();
                     _logger.Log(text);
                     _logger.Log(group.Key.ToString());
-                    await botClient.SendTextMessageAsync(group.Key, $"Итого:\n{text}");
+
+                    var apiToken = Environment.GetEnvironmentVariable("TGBOT_TOKEN");
+                    string urlString = $"https://api.telegram.org/bot{apiToken}/sendMessage?chat_id={chatId}&text={text}";
+                    var client = new HttpClient();
+                    var result = await client.GetAsync(urlString);
+                    //await botClient.SendTextMessageAsync(group.Key, $"Итого:\n{text}");
                 }
                 _logger.Log("Трансферы закончены");
             }
