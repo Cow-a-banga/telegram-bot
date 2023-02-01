@@ -8,7 +8,7 @@ namespace TelegramBot.Extensions
     {
         public static string JoinLines(this IEnumerable<PaymentInputDto> payments)
         {
-            return string.Join('\n', payments.Select(x => x.ToString()));
+            return string.Join("\n\n", payments.Select(x => x.ToString()));
         }
     }
 }

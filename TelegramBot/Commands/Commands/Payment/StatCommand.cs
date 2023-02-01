@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using DataBase;
 using DataBase.Commands;
 using Telegram.Bot;
@@ -16,6 +17,7 @@ namespace TelegramBot.Commands.Commands.Payment
         private PaymentStatistics _statistics;
         private List<Services.Payment.Payment> _transfers;
         private DatabaseContext _db;
+        private ILogger _logger = new ConsoleLogger();
 
         public StatCommand(DatabaseContext db)
         {
@@ -82,7 +84,10 @@ namespace TelegramBot.Commands.Commands.Payment
                     var text = group
                         .Select(x => x.ToDto<PaymentOutputDto>(users))
                         .JoinLines();
+                    _logger.Log(text);
                     var chat = await botClient.GetChatAsync(group.Key);
+                    _logger.Log(group.Key.ToString());
+                    _logger.Log((chat.FirstName));
                     await botClient.SendTextMessageAsync(chat, $"Итого:\n{text}");
                 }
             }
