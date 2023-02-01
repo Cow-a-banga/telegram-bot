@@ -86,10 +86,8 @@ namespace TelegramBot.Commands.Commands.Payment
                         .Select(x => x.ToDto<PaymentOutputDto>(users))
                         .JoinLines();
                     _logger.Log(text);
-                    var chat = await botClient.GetChatAsync(group.Key);
                     _logger.Log(group.Key.ToString());
-                    _logger.Log((chat.FirstName));
-                    await botClient.SendTextMessageAsync(chat, $"Итого:\n{text}");
+                    await botClient.SendTextMessageAsync(group.Key, $"Итого:\n{text}");
                 }
             }
         }
