@@ -30,7 +30,7 @@ namespace TelegramBot.Commands.Commands.Payment
 
         public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
-            await botClient.SendTextMessageAsync(message.Chat, "Сумма очищенна");
+            await botClient.SendTextMessageAsync(message.Chat, "Чек сохранён");
         }
     }
 }
