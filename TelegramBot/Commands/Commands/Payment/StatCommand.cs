@@ -77,6 +77,7 @@ namespace TelegramBot.Commands.Commands.Payment
 
             await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
             await botClient.SendTextMessageAsync(message.Chat, $"Трансферы:\n{transferText}");
+            _logger.Log(Newtonsoft.Json.JsonConvert.SerializeObject(_transfers));
             if (_transfers.Count > 0)
             {
                 foreach (var group in _transfers.GroupBy(x => x.UserFromId))
