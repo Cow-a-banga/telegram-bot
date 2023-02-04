@@ -18,7 +18,11 @@ namespace TelegramBot.Commands.Commands.Common
 
         public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
-            var text = string.Join('\n', CommandService.Commands.Select(x => x.Description).OrderBy(x => x));
+            var groups = CommandService.Commands
+                .GroupBy(x => x.CommandGroup)
+                .OrderBy(x => x.Key)
+                .Select(g => string.Join('\n', g.Select(x => x.Description).OrderBy(x => x)));
+            var text = string.Join("\n\n", groups);
             await botClient.SendTextMessageAsync(message.Chat, $"{text}");
         }
 
