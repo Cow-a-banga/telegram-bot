@@ -26,7 +26,8 @@ namespace TelegramBotExperiments.Commands
                 if (command.Names.Contains(prefix))
                 {
                     await command.ExecuteAsync(message);
-                    command.SendAnswer(message, botClient);
+                    await command.SendAnswer(message, botClient);
+                    command.Clear();
                     return;
                 }
             }

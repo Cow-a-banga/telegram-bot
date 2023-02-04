@@ -17,8 +17,8 @@ namespace TelegramBot.Commands.Commands.Payment
 {
     public class StatCommand:Command
     {
-        private PaymentStatistics _statistics;
-        private List<Services.Payment.Payment> _transfers;
+        private PaymentStatistics? _statistics;
+        private List<Services.Payment.Payment>? _transfers;
         private DatabaseContext _db;
 
         public StatCommand(DatabaseContext db)
@@ -26,6 +26,7 @@ namespace TelegramBot.Commands.Commands.Payment
             _db = db;
             Description = "/s, /stat - показывает кто сколько должен отдать или получить";
             Names = new[] {"/stat", "/s"};
+            CommandGroup = CommandGroup.Payment;
         }
         
         public override async Task ExecuteAsync(Message message)
@@ -35,6 +36,12 @@ namespace TelegramBot.Commands.Commands.Payment
             var generator = new PaymentStatisticsGenerator();
             _statistics = generator.GetStatistics(payments);
             _transfers = TransferGenerator.GenerateTransfers(_statistics);
+        }
+
+        public override void Clear()
+        {
+            _transfers = null;
+            _statistics = null;
         }
 
         public override async Task SendAnswer(Message message, ITelegramBotClient botClient)

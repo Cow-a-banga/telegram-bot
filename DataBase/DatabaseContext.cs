@@ -7,6 +7,7 @@ namespace DataBase
     {
         public DbSet<UserDto> Users { get; set; }
         public DbSet<PaymentDto> Payments { get; set; }
+        public DbSet<WhoAmIQuestionDto> Questions { get; set; }
         
         public DatabaseContext()
         {

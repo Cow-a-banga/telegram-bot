@@ -8,7 +8,7 @@ namespace TelegramBot.Commands.Commands.Payment
 {
     public class PayCommand :  Command
     {
-        private Services.Payment.Payment _payment;
+        private Services.Payment.Payment? _payment;
         private DatabaseContext _db;
 
         public PayCommand(DatabaseContext db)
@@ -16,6 +16,7 @@ namespace TelegramBot.Commands.Commands.Payment
             _db = db;
             Description = "/p, /pay (сумма) [@username] - добавляет платёж человека в чек (можно закинуть не в общак, а кокретному человеку)";
             Names = new[] {"/pay", "/p"};
+            CommandGroup = CommandGroup.Payment;
         }
 
         public override async Task ExecuteAsync(Message message)
@@ -53,10 +54,15 @@ namespace TelegramBot.Commands.Commands.Payment
 
         public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
-            if(_payment.Amount.HasValue)
+            if(_payment != null && _payment.Amount.HasValue)
                 await botClient.SendTextMessageAsync(message.Chat, "Сумма добавлена");
             else
                 await botClient.SendTextMessageAsync(message.Chat, "Некорректная сумма");
+        }
+
+        public override void Clear()
+        {
+            _payment = null;
         }
     }
 }

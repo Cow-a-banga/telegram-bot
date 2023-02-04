@@ -9,7 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
+using TelegramBot.Commands.Commands.Common;
 using TelegramBot.Commands.Commands.Payment;
+using TelegramBot.Commands.Commands.WhoAmI;
 using TelegramBot.Extensions;
 using TelegramBotExperiments.Commands;
 
@@ -69,6 +71,9 @@ namespace TelegramBotExperiments
             _commandService.Register(new PayCommand(_context));
             _commandService.Register(new StatCommand(_context));
             _commandService.Register(new ArchiveCommand(_context));
+            _commandService.Register(new ReadyCommand(_context));
+            _commandService.Register(new StartCommand(_context));
+            _commandService.Register(new WishCommand(_context));
             _commandService.Register(new HelpCommand());
 
             var cts = new CancellationTokenSource();

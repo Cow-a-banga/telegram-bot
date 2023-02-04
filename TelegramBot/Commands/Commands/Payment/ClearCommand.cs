@@ -15,6 +15,7 @@ namespace TelegramBot.Commands.Commands.Payment
             _db = db;
             Description = "/c, /clear - очищает текущий чек";
             Names = new[] {"/clear", "/c"};
+            CommandGroup = CommandGroup.Payment;
         }
         
         public override async Task ExecuteAsync(Message message)
@@ -29,5 +30,7 @@ namespace TelegramBot.Commands.Commands.Payment
         {
             await botClient.SendTextMessageAsync(message.Chat, "Сумма очищенна");
         }
+        
+        public override void Clear() {}
     }
 }

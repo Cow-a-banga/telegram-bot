@@ -16,8 +16,10 @@ namespace TelegramBot.Commands.Commands.Payment
             _db = db;
             Description = "/u, /undo - удаляет последний платёж";
             Names = new[] {"/undo", "/u"};
+            CommandGroup = CommandGroup.Payment;
         }
         
+        public override void Clear() {}
 
         public override async Task ExecuteAsync(Message message)
         {
