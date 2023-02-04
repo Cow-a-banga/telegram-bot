@@ -11,7 +11,12 @@ namespace TelegramBotExperiments.Commands
 {
     public class CommandService
     {
-        private static List<Command> _commands = new List<Command>();
+        private static List<Command> _commands;
+
+        public CommandService(List<Command> commands)
+        {
+            _commands = commands;
+        }
 
         public static IEnumerable<Command> Commands => _commands;
 
@@ -31,11 +36,6 @@ namespace TelegramBotExperiments.Commands
                     return;
                 }
             }
-        }
-        
-        public void Register(Command command)
-        {
-            _commands.Add(command);
         }
     }
 }

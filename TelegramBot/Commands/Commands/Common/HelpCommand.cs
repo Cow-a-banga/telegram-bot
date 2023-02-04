@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using DataBase;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBotExperiments.Commands;
@@ -8,7 +9,7 @@ namespace TelegramBot.Commands.Commands.Common
 {
     public class HelpCommand:Command
     {
-        public HelpCommand()
+        public HelpCommand(DatabaseContext context)
         {
             Description = "/h, /help - список команд";
             Names = new[] {"/help", "/h"};

@@ -4,14 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using DataBase;
-using DataBase.Models;
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
+using TelegramBot.Commands;
 using TelegramBot.Commands.Commands.Common;
 using TelegramBot.Commands.Commands.Payment;
 using TelegramBot.Commands.Commands.WhoAmI;
+using TelegramBot.Common.CollectCommands;
 using TelegramBot.Extensions;
 using TelegramBotExperiments.Commands;
 
@@ -23,7 +23,7 @@ namespace TelegramBotExperiments
         private static string token = Environment.GetEnvironmentVariable("TGBOT_TOKEN");
         private static ITelegramBotClient bot = new TelegramBotClient(token);
         private static DatabaseContext _context = new DatabaseContext();
-        private static CommandService _commandService = new CommandService();
+        private static CommandService _commandService = new CommandService(CommandsCollector.CollectAll());
         private static ILogger _logger = new ConsoleLogger();
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
@@ -63,18 +63,7 @@ namespace TelegramBotExperiments
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
             
-            _context.Database.Migrate();
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
-            
-            _commandService.Register(new ClearCommand(_context));
-            _commandService.Register(new UndoCommand(_context));
-            _commandService.Register(new PayCommand(_context));
-            _commandService.Register(new StatCommand(_context));
-            _commandService.Register(new ArchiveCommand(_context));
-            _commandService.Register(new ReadyCommand(_context));
-            _commandService.Register(new StartCommand(_context));
-            _commandService.Register(new WishCommand(_context));
-            _commandService.Register(new HelpCommand());
 
             var cts = new CancellationTokenSource();
             var cancellationToken = cts.Token;
