@@ -28,7 +28,8 @@ namespace TelegramBot.Commands.Commands.WhoAmI
 
         public override async Task SendAnswer(Message message, ITelegramBotClient botClient)
         {
-            await botClient.SendTextMessageAsync(message.Chat, "Вы готовы к игре, введите /start, когда все будут готовы");
+            var command = new StartCommand(_db);
+            await botClient.SendTextMessageAsync(message.Chat, $"Вы готовы к игре, введите {string.Join(", ", command.Names)}, когда все будут готовы");
         }
     }
 }

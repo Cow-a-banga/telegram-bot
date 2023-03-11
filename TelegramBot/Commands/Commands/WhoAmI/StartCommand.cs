@@ -26,8 +26,8 @@ namespace TelegramBot.Commands.Commands.WhoAmI
         public StartCommand(DatabaseContext db)
         {
             _db = db;
-            Description = "/start - начинает игру в 'Кто я' (должно быть хотя бы 2 человека)";
-            Names = new[] {"/start"};
+            Description = @"/sg, /startgame - начинает игру в 'Кто я' (должно быть хотя бы 2 человека)";
+            Names = new[] {"/startgame", "/sg"};
             CommandGroup = CommandGroup.WhoAmI;
         }
         
