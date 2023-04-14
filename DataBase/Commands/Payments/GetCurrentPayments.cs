@@ -15,10 +15,17 @@ namespace DataBase.Commands
             _db = db;
         }
 
-        public async Task<List<PaymentDto>> ExecuteAsync()
+        public async Task<List<PaymentDto>> ExecuteAsync(bool withDebts = false)
         {
+            if (withDebts)
+            {
+                return await _db.Payments
+                    .Where(x => x.PayDate == null)
+                    .ToListAsync();
+            }
+            
             return await _db.Payments
-                .Where(x => x.PayDate == null)
+                .Where(x => x.PayDate == null && x.Discriminator == nameof(PaymentDto))
                 .ToListAsync();
         }
     }

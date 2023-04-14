@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataBase.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20230204165116_I am an idiot (payments, users, who am i)")]
-    partial class Iamanidiotpaymentsuserswhoami
+    [Migration("20230312091429_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,10 @@ namespace DataBase.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("PayDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -52,6 +56,10 @@ namespace DataBase.Migrations
                     b.HasIndex("UserToId");
 
                     b.ToTable("Payments");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("PaymentDto");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("DataBase.Models.UserDto", b =>
@@ -110,6 +118,16 @@ namespace DataBase.Migrations
                     b.HasIndex("PlayerToId");
 
                     b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("DataBase.Models.DebtDto", b =>
+                {
+                    b.HasBaseType("DataBase.Models.PaymentDto");
+
+                    b.Property<bool>("Payed")
+                        .HasColumnType("boolean");
+
+                    b.HasDiscriminator().HasValue("DebtDto");
                 });
 
             modelBuilder.Entity("DataBase.Models.PaymentDto", b =>

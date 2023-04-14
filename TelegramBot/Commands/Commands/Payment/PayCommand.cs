@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using DataBase;
 using DataBase.Commands;
+using DataBase.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -47,8 +49,16 @@ namespace TelegramBot.Commands.Commands.Payment
 
             if (_payment.Amount.HasValue)
             {
-                var command = new AddPaymentCommand(_db);
-                await command.ExecuteAsync(_payment.ToDto());
+                var dto = _payment.ToDto();
+
+                _db.Payments.Add(dto);
+                
+                if (dto.UserToId != null && !_db.Payments.Any(x => x.UserFromId == dto.UserFromId && x.UserToId == null && x.PayDate == null))
+                {
+                    _db.Payments.Add(new PaymentDto{Amount = 0, UserFromId = dto.UserFromId});
+                }
+                
+                await _db.SaveChangesAsync();
             }
         }
 

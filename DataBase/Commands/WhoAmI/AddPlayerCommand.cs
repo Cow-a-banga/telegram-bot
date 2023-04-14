@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DataBase.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace DataBase.Commands.WhoAmI
 {
@@ -20,7 +18,8 @@ namespace DataBase.Commands.WhoAmI
 
             if (question != null) return;
 
-            _db.Questions.Add(new WhoAmIQuestionDto {PlayerFromId = userId});
+            var newQuestion = new WhoAmIQuestionDto {PlayerFromId = userId};
+            _db.Questions.Add(newQuestion);
             await _db.SaveChangesAsync();
         }
     }

@@ -12,5 +12,6 @@ namespace DataBase.Models
 
         public UserDto UserFrom { get; set; }
         public UserDto UserTo { get; set; }
+        public string Discriminator { get; set; }
     }
 }

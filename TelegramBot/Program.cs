@@ -1,16 +1,14 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using DataBase;
+using DataBase.Models;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
-using TelegramBot.Commands;
-using TelegramBot.Commands.Commands.Common;
-using TelegramBot.Commands.Commands.Payment;
-using TelegramBot.Commands.Commands.WhoAmI;
 using TelegramBot.Common.CollectCommands;
 using TelegramBot.Extensions;
 using TelegramBotExperiments.Commands;
@@ -22,26 +20,22 @@ namespace TelegramBotExperiments
     {
         private static string token = Environment.GetEnvironmentVariable("TGBOT_TOKEN");
         private static ITelegramBotClient bot = new TelegramBotClient(token);
-        private static DatabaseContext _context = new DatabaseContext();
-        private static CommandService _commandService = new CommandService(CommandsCollector.CollectAll());
+        private static DatabaseContext _context = new ();
+        private static CommandService _commandService = new (CommandsCollector.CollectAll());
         private static ILogger _logger = new ConsoleLogger();
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             try
             {
-                var command = new AddUserIfNotExistCommand(_context);
-                await command.ExecuteAsync(update.Message.From.ToDto());
-                
-                if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+                switch (update.Type)
                 {
-                    var message = update.Message;
-
-                    if (message?.Text == null)
-                        return;
-                    
-                    _logger.Log($"Запрос {update.Message.Text} от {update.Message.From.FirstName} получен");
-
-                    await _commandService.ExecuteAsync(message, botClient);
+                    case Telegram.Bot.Types.Enums.UpdateType.Message:
+                        await HandleMessage(botClient, update);
+                        break;
+                    case Telegram.Bot.Types.Enums.UpdateType.CallbackQuery:
+                        await HandleCallbackQuery(botClient, update);
+                        break;
+                        
                 }
             }
             catch (Exception ex)
@@ -78,6 +72,43 @@ namespace TelegramBotExperiments
                 cancellationToken
             );
             Thread.Sleep(Timeout.Infinite);
+        }
+
+        private static async Task HandleMessage(ITelegramBotClient botClient, Update update)
+        {
+            var command = new AddUserIfNotExistCommand(_context);
+            await command.ExecuteAsync(update.Message.From.ToDto());
+                    
+            if (update.Message?.Text == null)
+                return;
+                    
+            _logger.Log($"Запрос {update.Message.Text} от {update.Message.From.FirstName} получен");
+
+            await _commandService.ExecuteAsync(update.Message, botClient);
+        }
+        
+        
+        private static async Task HandleCallbackQuery(ITelegramBotClient botClient, Update update)
+        {
+            var parameters = update.CallbackQuery.Data.Split(' ');
+
+            switch (parameters[0])
+            {
+                case nameof(DebtDto):
+                    await botClient.EditMessageReplyMarkupAsync(update.CallbackQuery.Message.Chat, update.CallbackQuery.Message.MessageId);
+                    
+                    var id = long.Parse(parameters[1]);
+                    var debt = await _context.Debts.FindAsync(id);
+                    debt.Payed = true;
+                    _context.Debts.Update(debt);
+                    await _context.SaveChangesAsync();
+                    break;
+            }
+
+            //
+            //TODO: Добавить личные сообщения при archive, для каждого добавлять кнопку с id Debt. При нажатии на кнопку отмечать Debt как оплаченный, удалять кнопку кодом ниже и отправлять получателю уведомление о том, что деньги отправлены. Архивировать строки в Debts.
+            //
+            //
         }
     }
 }

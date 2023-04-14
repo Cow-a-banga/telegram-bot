@@ -8,11 +8,8 @@ namespace DataBase
         public DbSet<UserDto> Users { get; set; }
         public DbSet<PaymentDto> Payments { get; set; }
         public DbSet<WhoAmIQuestionDto> Questions { get; set; }
+        public DbSet<DebtDto> Debts { get; set; }
         
-        public DatabaseContext()
-        {
-            Database.EnsureCreated();
-        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = System.Environment.GetEnvironmentVariable("TGBOT_CONN");

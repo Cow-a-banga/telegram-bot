@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataBase.Migrations
 {
     /// <inheritdoc />
-    public partial class Iamanidiotpaymentsuserswhoami : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,7 +38,9 @@ namespace DataBase.Migrations
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
                     UserFromId = table.Column<long>(type: "bigint", nullable: false),
                     UserToId = table.Column<long>(type: "bigint", nullable: true),
-                    PayDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    PayDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Discriminator = table.Column<string>(type: "text", nullable: false),
+                    Payed = table.Column<bool>(type: "boolean", nullable: true)
                 },
                 constraints: table =>
                 {

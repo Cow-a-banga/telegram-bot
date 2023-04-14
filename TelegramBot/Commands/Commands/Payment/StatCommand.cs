@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Common;
 using DataBase;
 using DataBase.Commands;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramBot.Extensions;
@@ -36,6 +33,13 @@ namespace TelegramBot.Commands.Commands.Payment
             var generator = new PaymentStatisticsGenerator();
             _statistics = generator.GetStatistics(payments);
             _transfers = TransferGenerator.GenerateTransfers(_statistics);
+
+            var oldDebts = await _db.Debts.Where(x => x.PayDate == null).ToListAsync();
+            _db.Debts.RemoveRange(oldDebts);
+
+            var debts = _transfers.ToDebtDto();
+            _db.Debts.AddRange(debts);
+            await _db.SaveChangesAsync();
         }
 
         public override void Clear()
@@ -86,21 +90,6 @@ namespace TelegramBot.Commands.Commands.Payment
 
             await botClient.SendTextMessageAsync(message.Chat, $"+ платит, - получает:\n{commonText}\n\n{personalText}");
             await botClient.SendTextMessageAsync(message.Chat, $"Трансферы:\n{transferText}");
-            if (_transfers.Count > 0)
-            {
-                foreach (var group in _transfers.GroupBy(x => x.UserFromId))
-                {
-                    var chatId = group.Key;
-                    var text = "Итого:\n" + group
-                        .Select(x => x.ToDto<PaymentOutputDto>(users))
-                        .JoinLines();
-
-                    var apiToken = Environment.GetEnvironmentVariable("TGBOT_TOKEN");
-                    string urlString = $"https://api.telegram.org/bot{apiToken}/sendMessage?chat_id={chatId}&text={text}";
-                    var client = new HttpClient();
-                    await client.GetAsync(urlString);
-                }
-            }
         }
     }
 }
