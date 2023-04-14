@@ -24,7 +24,7 @@ namespace TelegramBot.Commands.Commands.Payment
         public override async Task ExecuteAsync(Message message)
         {
             var payment = await _db.Payments
-                .Where(x => x.UserFromId == message.From.Id)
+                .Where(x => x.UserFromId == message.From.Id && x.PayDate == null)
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefaultAsync();
 
